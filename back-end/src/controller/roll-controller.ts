@@ -5,6 +5,7 @@ import { StudentRollState } from "../entity/student-roll-state.entity"
 import { CreateRollInput, UpdateRollInput } from "../interface/roll.interface"
 import { CreateStudentRollStateInput, UpdateStudentRollStateInput } from "../interface/student-roll-state.interface"
 import { map } from "lodash"
+import { isArray } from "util";
 
 export class RollController {
   private rollRepository = getRepository(Roll)
@@ -28,8 +29,13 @@ export class RollController {
 
   async updateRoll(request: Request, response: Response, next: NextFunction) {
     const { body: params } = request
-
-    this.rollRepository.findOne(params.id).then((roll) => {
+    if (!params.id) {
+      return {
+        "success": false,
+        "message": "Missing id"
+      }
+    }
+    return this.rollRepository.findOne(params.id).then((roll) => {
       const updateRollInput: UpdateRollInput = {
         id: params.id,
         name: params.name,
@@ -42,15 +48,22 @@ export class RollController {
 
   async removeRoll(request: Request, response: Response, next: NextFunction) {
     let rollToRemove = await this.rollRepository.findOne(request.params.id)
-    await this.rollRepository.remove(rollToRemove)
+    return await this.rollRepository.remove(rollToRemove)
   }
 
   async getRoll(request: Request, response: Response, next: NextFunction) {
-    return this.studentRollStateRepository.find({ roll_id: request.params.id })
+    return this.studentRollStateRepository.find({ roll_id: request.query.id })
+    // return this.rollRepository.find()
   }
 
   async addStudentRollStates(request: Request, response: Response, next: NextFunction) {
     const { body: params } = request
+    if (!isArray(params)) {
+      return {
+        "success": false,
+        "message": "expecting list of dict"
+      }
+    }
     const studentRollStates: StudentRollState[] = map(params, (param) => {
       const createStudentRollStateInput: CreateStudentRollStateInput = {
         roll_id: param.roll_id,
