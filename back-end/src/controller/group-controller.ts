@@ -5,6 +5,7 @@ import { CreateGroupInput, UpdateGroupInput } from "../interface/group.interface
 import { CreateGroupStudentInput, UpdateGroupStudentInput } from "../interface/group-student.interface";
 import { GroupStudent } from "../entity/group-student.entity"
 import { Roll } from "../entity/roll.entity"
+import { Student } from "../entity/student.entity"
 import { StudentRollState } from "../entity/student-roll-state.entity"
 
 export class GroupController {
@@ -13,6 +14,7 @@ export class GroupController {
   private groupStudentRepository = getRepository(GroupStudent)
   private rollRepository = getRepository(Roll)
   private studentRollStateRepository = getRepository(StudentRollState)
+  private studentRepository = getRepository(Student)
 
   async allGroups(request: Request, response: Response, next: NextFunction) {
     // Task 1: 
@@ -89,9 +91,15 @@ export class GroupController {
     // Task 1: 
 
     // Return the list of Students that are in a Group
-
-    return this.groupStudentRepository.find()
-    // return this.groupStudentRepository.find({ group_id: request.query.group_id })
+    // 
+    let details = await this.groupStudentRepository.find({ group_id: request.query.group_id })
+    for (let i in details) {
+      let studentDetails = await this.studentRepository.find({ id: details[i]["student_id"] })
+      details[i]["full_name"] = studentDetails[0]["first_name"] + " " + studentDetails[0]["last_name"]
+      details[i]["first_name"] = studentDetails[0]["first_name"]
+      details[i]["last_name"] = studentDetails[0]["last_name"]
+    }
+    return details
   }
 
   async runGroupFilters(request: Request, response: Response, next: NextFunction) {
