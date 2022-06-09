@@ -162,9 +162,9 @@ export class GroupController {
           })
           console.log(filteredStudents, filteredStudents.length)
 
-          //to find total number of times students falls the condition across the dates
-          //in case of unique count we need to use the length of keys of dict bellow
-          student_count += filteredStudents.length ? filteredStudents.length : 0
+          // //to find total number of times students falls the condition across the dates
+          // //in case of unique count we need to use the length of keys of dict bellow
+          // student_count += filteredStudents.length ? filteredStudents.length : 0
 
 
           // inorder to find incident_count per student
@@ -195,6 +195,7 @@ export class GroupController {
 
             if (proceed) {
               // 3. Add the list of students that match the filter to the group
+              student_count = + 1
               const createGroupStudentInput: CreateGroupStudentInput = {
                 student_id: Number(studentid),
                 group_id: Number(group_id),
